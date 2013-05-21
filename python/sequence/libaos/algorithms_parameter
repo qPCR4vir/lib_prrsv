@@ -1,0 +1,23 @@
+Reverse Smith-Waterman algorithms
+	PAM47 DNA matrix:	
+	      gap_open = -7;
+	      gap_extend = 0;
+	      match = 5;
+	      mismatch = -4;
+
+
+Blastn algorithms
+	E-value : 10  	
+	gap_open -5
+	gap_extention -2		
+	match 1
+	mismatch -3
+
+
+
+
+
+
+
+
+

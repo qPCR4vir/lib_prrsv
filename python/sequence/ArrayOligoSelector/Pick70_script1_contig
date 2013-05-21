@@ -1,0 +1,160 @@
+#! /bin/bash
+
+cpunum=2
+export cpunum
+
+function_user_input_yesno()
+{
+    while [ 1 ]
+      do
+      echo "continue? [yes/no] "
+      read answer
+      if ( test  "$answer" = "yes" )
+          then
+          return 1
+      elif ( test "$answer" = "no" )
+          then
+          return 0
+      fi
+    done
+}
+
+if [  $# -eq 5 -o $# -eq 6 ]
+then
+    value=`python -V 2>&1`
+    if test 6 != `( expr "$value" : "Python" )`  #match as the begginging of the string python
+	then
+	echo $value
+	echo "The python interpreter can not be found. Check if the interpreter has been installed and in your PATH"
+	exit 0
+    fi
+    if ( test 2 -gt `(expr "$value" : ".......\(.\)" )` )
+	then
+	echo "For ArrayOligoSelector version 3.2 or above, you need to  install python interpreter version 2.2 or above"
+	exit 0
+    fi
+    if ( test  0 -ne  `( expr "$1" : "temp" )` )
+	then
+	echo "Please choose another name for input file."
+	exit 0
+    elif ( test  0 -ne  `( expr "$2" : "temp" )` )
+	then
+	echo  "Please choose another name for genome file."
+	exit 0
+    fi
+    
+    python code/Pick70_filter_seq.py $1 $2 $3 $4
+    value="$?"
+    if ( test $value -eq 1 )
+        then
+        echo "Input file is not in FASTA format or does not exist."
+        exit 0
+    fi
+    if ( test $value -eq 2 )
+        then
+        echo "Genome file is not in FASTA format or does not exist."
+        exit 0
+    fi
+    if ( test $value -eq 3 )
+        then
+        echo "Input value of oligo length is not valid.  Please enter positive interger."
+        exit 0
+    fi
+    if ( test $value -eq 4 )
+        then
+        echo "Detected error in input or genome files: different sequences (different in length or DNA sequence) with the same identifier"
+        exit 0
+    fi
+    if ( test $value -eq 5 )
+        then
+        echo "It is not a good idea to have a WHITE SPACE character in the sequence identifiers.  To ensure the proper execution of the program, it is required that those WHITE SPACE characters be deleted before you use the program."
+        exit 0
+    fi
+    if ( test $value -eq 6 )
+	then
+	echo "Please specify if you want to use lowercase to exclude certain sequnence segments from computation (yes, no).  This can be used to speed up the program for input sequences include highly repetitive sequences such as alu element."
+	exit 0
+    fi
+    if ( test $value -eq 7 )
+	then 
+	echo "The supplemental groupfile is in the wrong format"
+	exit 0
+    fi
+    if  ( test   "$5" = "blat"  -o   "$5" = "gfclient" -o "$5" = "blast" ) 
+	then
+	echo $5 "will be used to identify input sequences genomic origins."
+    else
+	echo "Entry one of the following words: blat, blast or gfclient "
+	exit 0
+    fi
+
+    if ( test `uname` != "Linux" )
+	then
+	echo "WARNING: the system is not linux, you need to download from ftp.ncbi.nlm.nih.gov the appropriate executable files : blastall and formatdb.  You also need to install python interperter 2.2 or above if your system does not have it installed."
+	function_user_input_yesno
+        answer=$?
+        if ( test "$answer" = "0" )
+            then
+	    exit 0
+	fi
+    fi
+    
+    PATH=code:$PATH
+    export PATH
+    
+    cd code
+    make clean; make
+    cd ../
+    echo
+
+    echo >> error.log
+    date >> error.log
+
+    rm -rf formatdb.log groupfile temp
+    python code/Pick70_genome_itself.py $1 $2  groupfile $5 $4
+    if ( test $? != 0 )
+	then
+	echo "Program terminated"
+	exit 0
+    fi
+
+    if [ $# -eq 6 ]  
+	then
+	if [ $6 != ""  ]
+	    then
+	    cat $6 >> groupfile
+	fi
+    fi
+
+    chmod a-w groupfile
+    rm -rf output*
+    echo
+    python code/Pick70.py $1 output $2 0 3 $3 $4 groupfile 
+    if  ( test $? != 0 )
+        then
+        echo "Program terminated"
+        exit 0
+    fi
+    echo "OLIGO program has successfully finished.  The output files are output0, output1, ... "
+    echo "You can run the second script to select oligos."
+    exit 0
+else
+    echo "USAGE: ./Pick70_script1 inputseq(fasta) genome(fasta)  oligo_size(eg 70) MaskByLowercase(yes,no) Method_To_Identify_Genomic_Origin(blat/blast/gfclient) "
+    echo
+    echo "*inputseq: gene/NUCLEOTIDE sequences submit for design in FASTA format"
+    echo
+    echo "*genome: genome GENE/NUCLEOTIDE sequences in FASTA format"
+    echo
+    echo "*oligo_size: in basepair" 
+    echo 
+    echo "*MaskByLowercase: You can exclude sub-sequences from the compuation using lower case.  Those sub-regions will be flagged in the outputs.  To use lowercase for this purpose, type \"yes\"; otherwise, type \"no\"". 
+    echo
+    echo "*Methods to identify genomic origin: "
+    echo
+    echo "         Before the program can compute the uniqueness parameter, it needs to find the genomic origins of each input sequences and stores the location information in the \"groupfile\" . "
+    echo "         You can choose one of the three methods to accomplish this task: blat/ blast/gfClient by typing the exact word: blat, blast or gfclient, in which lower case are required."
+    echo "         If you choose to use gfclient, you need first set up the gfServer, and enter the server information in the \".gfServer_Information\" file.  It is VERY IMPORTANT that you set up the gfServer from the directory where the .nib files locate. "
+    echo "         For furthur information on gfClient/gfServer and blat program, please refer to Genome Res. 2002 Apr;12(4):656-64 available at http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=11932250&dopt=Abstract"
+    echo
+    exit 0
+fi

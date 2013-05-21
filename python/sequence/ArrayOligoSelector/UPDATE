@@ -1,0 +1,92 @@
+update in version 3.8.4  Feb 1, 2005
+1. Enhancement: the multiple oligo selection.  The distance requirement for multiple oligos are progressively relaxed from 0.7*oligo length to 10bp.
+
+update in version 3.8.3  August 31, 2004
+1. Enhancement: shell scripts (expr command) are modified to be compatible with bash shell.   
+2. Enhancement: getfa.c is modified to be usable in MacOSX environment.
+
+update in version 3.8.2  August 4, 2004
+1. Bug fix: Program crash dues to unexpected text parsing. This only happens when using contig version of the program, with blast option, query length is greater than 10,000 bp. 
+
+update in version 3.8.1 April 20, 2004
+1. Bug fix: If lower case sequences and no lower case masking options are combined, the program crashes. The problem is fixed in this version.
+.  
+update in version 3.8 April 18, 2004
+1. In the selection (Pick70_script2) subprogram, the usage of the optional energy cutoff parameter is changed.  It this parameter is provided by the user, it is used together with the default selection rules in a AND-gate fashion.  The oligo selection satisfies both the default rules and the optional threshold.   In previous versions, the optional parameter is used to replace the default rules.
+
+update in version 3.7.1 March 18, 2004
+1. Enhancement: Repetitive sequences are masked before using BLAT or gfclient to identify their genomic targets (dust filter).  
+2. Enhancement: The program continues on to the next input sequence despite of blastall warning messages. The sequence generates the warnings is logged to error.log.
+
+update in version 3.5.1 Feb 2, 2004
+1. BUG fix:  An empty line in the sequence files causes an improper termination of the application. This bug is fixed in this version.  Many thanks to Seth Crosby from Washington University to discover the bug.
+
+update in version 3.5 Oct 20, 2003
+1. BUG fix:  The GC filter was not effective. This bug was fixed in this version.  Many thanks to Chris Meiering from stanford to discover this bug.
+
+update in version 3.4 Sep 9, 2003
+1. Added the option to use lower case to exclude sub-sequences during computation and those sequences will be flagged in the outputs.  This option can be combined with Repeatmasker to speedup computation for highly repetitive sequences like alu elements.
+
+update in version 3.3 August 8th, 2003
+The program name is changed from Pick70 to ArrayOligoSelector, out official name in the publication.
+
+update in version 3.2 June 4, 2003
+1. In the contig version of the program, the code has been extended to be able to use either BLAT (both stand alone blat or gfClient/gfServer configuration) or blast program to identify the genomic target.  The interface is still under-development.  The advantage of using blat is to increase the speed of identifying target by 1000 times.  
+ 
+update in version 3.1 May 23th, 2003
+1. Enhancement: The code is adapted to work with large files (> 2GB).  This also requires python interpreter 2.2 or above download and installed on the system. 
+2. Enhancement: New blast code (version 2.2.3) is used to replace the old version (2.1.3). This code can handle large file size (>2GB). 
+ 
+update in version 3.0 May 14th, 2003
+1. Enhancement: The shell scripts and Makefile have been modified to be compatible with bash and tcsh for Linux, SunOS, alpha operating systems.
+
+update in version 2.8 Feb 19th, 2003
+1. Enhancement:  The program will properly terminate and give out an ERROR message upon the following scenario:  two different sequences with the same identifier, one exists in the input file, another in the genome file.  
+
+update in version 2.7 Feb 14th, 2003
+1. If the user run script2 to design 2 oligos per gene, in oligo_dup output file, the SEQUENCE_ID of the second oligo will be overwritten by the ID of the last secondary target listed from the previous oligo of the same gene.  Thank A. Springer for identifying the bug.  The bug is fixed in version 2.7. 
+
+2. An oligo's uniqueness is calculated as its binding energy to its secondary targets in the genome.  Their identifiers and locations in the genome will be reported in the intermediate file(s) named as output0,1,2 ... .    Apparently, the locations are off by 1 base pair in the intermediate files and miss calculations of the binding energy in some cases.  The miss calculation happens only to oligos starting at the FIRST position of input sequences having alignments begins at 2-10 base pair positions.  The bug is fixed in version 2.7.
+
+update in version 2.6 November 30,2002
+1. In version 1.5, there is a mistake in the energy code calculation that will result in a larger(less negative) binding energy estimation in regions having more than one "high score hit"  using blastn. This bug is fixed in version 2.6 
+
+update in version 2.5 October 30,2002
+1. In version 2.0 to 2.4 contig version of the program, if the input sequence has low complexity sequences in any of its exons, the program will fails to exclude the original exon region in the genome file. Fixed in 2.5 
+2. User has reported that if the ORF input sequences have long stretch of N or X or other non ATGC characters, the program will crash during GC percentage computation. Bug fixed and the GC percentage will only be computed if at least 70% of the oligo sequences are ATGC characters. For the rest, a flag 'F' will be recorded in the output files for the first program and consequently will not be selected as candidate oligos. 
+
+update in version 2.4 October 25,2002
+1. In version 2.3, if there exists an empty new line ('\n') in the input sequence file, the program will pre-terminate at the empty new line. This bug is fixed in version 2.4
+
+update in version 2.3 October 9,2002
+1. In the older versions, if the input file or genome file are too big, python interpreter will generate "memory insufficient error". The code has improved to alleviate the problem. However the problem will exist if the size of a single sequence in those fasta files is larger than what the maximum memory allowance for the python interpreter.
+ 
+update in version 2.2 Sept. 2, 2002
+1.A bug is identified in the module to identify input sequences' genomic targets, which will cause runtime failure when blast does not detect any hits in the genome sequences. Thanks to Christina and Joyce, the bug is fixed. 
+
+update in version 2.1 Sept. 2, 2002
+1. Because blastn DUST filter will occasionally fail to mask AT rich regions that are 
+next to polyA or polyT, an ad-hoc filter is implemented to solve the problem.
+
+update in version 2.0 August 28, 2002
+1.using blastn -DUST filter to increase the speed in  both the modules to find input sequences' genomic targets and compute uniqueness of oligos. Consequently if an oligo is from the DUST filter masked sequence region, the uniqueness score of that oligo is flagged and the oligo will not be considered an candidate during the selection (Pick70_script2) process.
+
+update in version 1.7  August 23, 2002
+1. The algorithms used to find inputs' genomic target in the contig version has been modified to detect exons  with less than 0.5% mismatches instead of requiring 100% matches.  Relaxation has also been made when very small exons (<20bp total) are missed by blastn program.  
+
+
+update in version 1.6  August 16, 2002
+1. Fixed a bug in blast_parse module  causes improper parsing of blast output if the subject sequence has the word "score" in its identifier.  
+2. Modified the Makefile to change the name of the executable for oligo self-binding evaluation from SW.o to SW
+3. The algorithms used to find inputs' genomic target in the contig version has been further improved to increase the speed when it encounters low complexity sequences.  
+
+update in version 1.4
+There is a mistake on uniqueness score calculation for 60bp region before any alignment.  The score of the 60bp region is reversed.  The bug is fixed in version 1.4
+
+update in version 1.3
+The algorithms used to find inputs' genomic target in the contig version has been completely rewritten. The new algorithms is efficient even when low complexity region involved.  
+
+
+
+
+

@@ -1,0 +1,33 @@
+#ForDevelopers.txt
+
+Overall architecture of PrimerPy
+
+GUI interface
+    primerpy.py, main frame; 
+    guiclasses.PrimerNoteBook, use a tabed notebook to organize contents.
+    sheet_design, inputpage
+        Template panel
+        optional panel
+    sheet_result, Display result and print,
+    sheet_log
+    sheet_manual
+
+Future Utility modules
+    input sequence check
+    oligo self structure check
+
+primer3 wrapper
+    Primer3Wrapper.py, run primer3, with real-time design logics
+    input and output formatting with primer3
+
+files
+    '_primerpy_xxx.conf', configuration files, for POSIX or WIN accordingly
+    '_primerpy.record', record file, keep record of run_num and last_run_result
+    under UserDataDir/
+        logfile
+        run results, a file for each run
+
+##--------------------------------------
+Startup,
+    check configuration, if dir/primer3 exe missing:
+        promote configuration dialog, configure UserDataDir, LogFile, Primer3_exe_Path

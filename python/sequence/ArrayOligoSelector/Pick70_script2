@@ -1,0 +1,61 @@
+#! /bin/bash
+
+if [ $# -eq 4 ]
+then
+    python code/Pick70_second_program_filter.py $1 $2 $3 $4
+    result="$?"
+    if ( test "0" != "$result")
+    then
+	exit 0
+    fi
+    python code/Pick70_parse.py output oligo_fasta oligo_dup  $1 $2 $3 $4 
+    exit 0
+elif [ $# -eq 3 ]
+then
+    python code/Pick70_second_program_filter.py $1 $2 $3
+    result="$?"
+    if ( test "0" != "$result")
+    then
+	exit 0
+    fi
+    python code/Pick70_parse.py output oligo_fasta  oligo_dup  $1 $2 $3 
+    exit 0
+elif [ $# -eq 7 ]
+then
+    python code/Pick70_second_program_filter.py $1 $2 $3 $4 $5 $6 $7
+    result="$?"
+    if ( test "0" != "$result")
+    then
+	exit 0
+    fi
+    python code/Pick70_parse.py output oligo_fasta  oligo_dup  $1 $2 $3 $4 $5 $6 $7
+    exit 0
+else
+    
+    echo "USAGE: ./Pick70_script2 target_GC Oligo_len Number_Oligo [optional binding energy cutoff] [Mask_Length Mask_Symbol Mask_Tolerance]"
+    echo
+    echo "*GC: GC percentage (eg: 35.5, positive float or integer number)"
+    echo
+    echo "*Oligo_len: length of Oligo in bp(positive integer)"
+    echo
+    echo "*Number_Oligo: how many oligos do you want to design (positive integer)"
+    echo
+    echo "*OPTIONAL binding energy cutoff: "0" is the default"
+    echo
+    echo "*OPTIONAL masking parameters:  if used, all the optional masking parameters are required"
+    echo
+    echo "          *Mask_Length: maximum length of subsequence allowed containing the Mask_Symbols eg: 20"
+    echo
+    echo "          *Mask_Symbol (ATGCN): masking bases eg:AT or N"
+    echo
+    echo "          *Mask_Tolerance (0 -1) : percent of other bases allowed eg:0.1"
+    echo
+    exit 0
+fi
+
+
+
+
+
+
+

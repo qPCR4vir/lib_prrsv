@@ -1,0 +1,31 @@
+November 29, 2010 - Kael Fischer
+
+This file describes the modifications to Array Oligo Selector (AOS) 
+that are made to allow a shared library of AOS routines to be use in 
+side other processes.
+
+Useful functions in the library:
+    int SW (char *seq1, char *seq2, int alignment, int size,char* buff);
+    double energy(char *s1, char *s2, int revert);
+    int LZWsize(char* seq, int size)
+
+The AOS C code has been hacked here to move or remove 'main' functions
+and a Makefile is provided that should aid in building the shared
+library. It is known to work with gcc 4.2.1 on FreeBSD-7.0, amd64.
+Note that this implies a generic UNIX make and is not tested with
+gmake.  However I suspect that the code and build requirements are
+basic enough that it should work or may be made to work on most
+POSIXish systems.  
+
+
+An example python interface module is provided: aos.py.  It expects
+the compiled shared library to be in the same directory as the
+module. 
+
+The AOS Pick70 python code and various LINUX binaries have been
+removed. As always the original AOS is avalible at
+arrayoligosel.sourceforge.net. AOS and deriviative works (including
+this one) are released subject to the restrictions of GPLv2
+(http://www.gnu.org/licenses/gpl-2.o.html).
+
+==

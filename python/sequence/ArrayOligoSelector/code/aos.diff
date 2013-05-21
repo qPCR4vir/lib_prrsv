@@ -1,0 +1,183 @@
+Index: ArrayOligoSelector/code/Makefile
+diff -c ArrayOligoSelector/code/Makefile:3.8.4.1 ArrayOligoSelector/code/Makefile:4.1
+*** ArrayOligoSelector/code/Makefile:3.8.4.1	Tue Mar  1 12:45:24 2005
+--- ArrayOligoSelector/code/Makefile	Tue Feb 28 16:41:43 2006
+***************
+*** 2,8 ****
+  ## Makefile for C++ 
+  ##
+  
+! CPPFLAGS =  -Wall -g
+  
+  CXX = gcc
+  LDFLAGS = -lm
+--- 2,11 ----
+  ## Makefile for C++ 
+  ##
+  
+! CPPFLAGS =  -Wall
+! 
+! OFLAGS = -O3
+! ENERGY_OFLAGS = -O2
+  
+  CXX = gcc
+  LDFLAGS = -lm
+***************
+*** 27,42 ****
+  default : $(PROGS_SEQ) $(PROGS_ENERGY) $(PROGS_LZW) $(PROGS_DUST)
+  
+  $(PROGS_SEQ) :  $(SRCS_SEQ)
+! 	$(CXX) -o $@ $(SRCS_SEQ)   
+  
+  $(PROGS_ENERGY) :  $(SRCS_ENERGY)
+! 	$(CXX) -o $@ $(SRCS_ENERGY)  $(LDFLAGS) 
+  
+  $(PROGS_LZW) :   $(SRCS_LZW)
+! 	$(CXX) -o $@ $(SRCS_LZW)   
+  
+  $(PROGS_DUST) :   $(SRCS_DUST)
+! 	$(CXX) -o $@ $(SRCS_DUST)   
+  
+  clean : 
+  	/bin/rm -f $(OBJS_SEQ) $(OBJS_ENERGY) $(OBJS_LZW) $(OBJS_DUST) a.out core $(PROGS_SEQ)  $(PROGS_ENERGY) $(PROGS_LZW) $(PROGS_DUST)  Makefile.dependencies
+--- 30,45 ----
+  default : $(PROGS_SEQ) $(PROGS_ENERGY) $(PROGS_LZW) $(PROGS_DUST)
+  
+  $(PROGS_SEQ) :  $(SRCS_SEQ)
+! 	$(CXX) $(OFLAGS) -o $@ $(SRCS_SEQ)   
+  
+  $(PROGS_ENERGY) :  $(SRCS_ENERGY)
+! 	$(CXX) $(ENERGY_OFLAGS) -o $@ $(SRCS_ENERGY)  $(LDFLAGS) 
+  
+  $(PROGS_LZW) :   $(SRCS_LZW)
+! 	$(CXX) $(OFLAGS) -o $@ $(SRCS_LZW)   
+  
+  $(PROGS_DUST) :   $(SRCS_DUST)
+! 	$(CXX) $(OFLAGS) -o $@ $(SRCS_DUST)   
+  
+  clean : 
+  	/bin/rm -f $(OBJS_SEQ) $(OBJS_ENERGY) $(OBJS_LZW) $(OBJS_DUST) a.out core $(PROGS_SEQ)  $(PROGS_ENERGY) $(PROGS_LZW) $(PROGS_DUST)  Makefile.dependencies
+Index: ArrayOligoSelector/code/Pick70_blast.py
+diff -c ArrayOligoSelector/code/Pick70_blast.py:3.8.4.1 ArrayOligoSelector/code/Pick70_blast.py:4.1
+*** ArrayOligoSelector/code/Pick70_blast.py:3.8.4.1	Tue Mar  1 12:45:24 2005
+--- ArrayOligoSelector/code/Pick70_blast.py	Tue Feb 28 16:42:31 2006
+***************
+*** 1,9 ****
+  import string, os, sys, re
+  import fasta
+  import Pick70_mask
+  
+! TRUE =1
+! FALSE =0
+  ADD =0
+  SUB =1
+  WORD = 10
+--- 1,10 ----
+  import string, os, sys, re
+  import fasta
+  import Pick70_mask
++ import tempfile
+  
+! TRUE =True
+! FALSE =False
+  ADD =0
+  SUB =1
+  WORD = 10
+***************
+*** 12,27 ****
+  FLAGED  = 'F'
+  MASKALL = 0.25 #0.1
+  
+  #energy_dic = {pos:[min_energy,[hit_id, energy],[hit_id, energy],...], ....}
+  def Blast(SEQ, id, Group_dic_same, DB,  OLIGOLEN,  TRACEFLAG, STRAND): 
+      seqfile = Write_SeqFile(SEQ,id)
+!     blast_output = Excute_Blast(seqfile, DB,  TRACEFLAG, STRAND)
+      if blast_output != 0: #success
+          energy_dic = Parse_Blast (id, blast_output, Group_dic_same,  OLIGOLEN)
+          Mask_energy_dic(energy_dic, seqfile, len(SEQ), OLIGOLEN)
+      else:
+          energy_dic =0 #fail
+      Del_Temp_Seqfile (seqfile)
+      return energy_dic
+  
+  def Del_Temp_Seqfile (seqfile):
+--- 13,33 ----
+  FLAGED  = 'F'
+  MASKALL = 0.25 #0.1
+  
++ 
++ 
+  #energy_dic = {pos:[min_energy,[hit_id, energy],[hit_id, energy],...], ....}
+  def Blast(SEQ, id, Group_dic_same, DB,  OLIGOLEN,  TRACEFLAG, STRAND): 
++     (tmpFileID, tmpBlastFileName ) = tempfile.mkstemp('P70_blast','','/usr/scratch/blast')
++     os.close(tmpFileID)
+      seqfile = Write_SeqFile(SEQ,id)
+!     blast_output = Excute_Blast(seqfile, DB,  TRACEFLAG, STRAND,tmpBlastFileName)
+      if blast_output != 0: #success
+          energy_dic = Parse_Blast (id, blast_output, Group_dic_same,  OLIGOLEN)
+          Mask_energy_dic(energy_dic, seqfile, len(SEQ), OLIGOLEN)
+      else:
+          energy_dic =0 #fail
+      Del_Temp_Seqfile (seqfile)
++     os.unlink(tmpBlastFileName)
+      return energy_dic
+  
+  def Del_Temp_Seqfile (seqfile):
+***************
+*** 61,73 ****
+          if string.count(oligoseq,'N') >= cutoff:
+              energy_dic[i] = [FLAGED]
+  
+! def Excute_Blast(seqfile, DB,  TRACEFLAG, STRAND):
+      os.environ['DB']= DB
+      os.environ['seqfile'] = seqfile
+      os.environ['E_value'] = str(E_VALUE)
+      os.environ['STRAND'] = STRAND
+      os.environ['MAX'] = str(MAX)
+!     fr,fw,fe = os.popen3('./code/blastall -p blastn -d $DB -i "$seqfile" -e $E_value -F "m D" -U -v $MAX -b $MAX -S $STRAND -a $cpunum -G 5 -E 0 -o "~out.blastout"')
+      try:
+          os.wait()
+      except OSError:
+--- 67,80 ----
+          if string.count(oligoseq,'N') >= cutoff:
+              energy_dic[i] = [FLAGED]
+  
+! def Excute_Blast(seqfile, DB,  TRACEFLAG, STRAND,tmpBlastFileName):
+      os.environ['DB']= DB
+      os.environ['seqfile'] = seqfile
++     os.environ['P70_BLASTOUT'] = tmpBlastFileName
+      os.environ['E_value'] = str(E_VALUE)
+      os.environ['STRAND'] = STRAND
+      os.environ['MAX'] = str(MAX)
+!     fr,fw,fe = os.popen3('blastall -p blastn -d $DB -i "$seqfile" -e $E_value -F "m D" -U -v $MAX -b $MAX -S $STRAND -a $cpunum -G 5 -E 0 -o "$P70_BLASTOUT"')
+      try:
+          os.wait()
+      except OSError:
+***************
+*** 83,89 ****
+          #sys.exit(1)
+          return 0
+      
+!     fin = open("~out.blastout", 'r')
+      result = fin.read()
+      fin.close()
+  
+--- 90,96 ----
+          #sys.exit(1)
+          return 0
+      
+!     fin = open(tmpBlastFileName, 'r')
+      result = fin.read()
+      fin.close()
+  
+***************
+*** 105,110 ****
+--- 112,119 ----
+  #Group_dic_same is as [[hit_id, hit_strand, qstart, qend,hstart,hend,...],[hit_id, hit_strand, qstart,qend, hstart, hend,...]]
+  def Parse_Blast (id , output, Group_dic_same,  OLIGOLEN):
+      import blast_parse
++     print 0.0
++     print output
+      parse_dic = {}
+      blast_parse.parse_alignment(output, parse_dic, 1)
+      #now we need the information to check that not only that we hit the same id but in the corresponding region too

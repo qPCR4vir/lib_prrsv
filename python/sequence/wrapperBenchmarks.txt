@@ -1,0 +1,11 @@
+In [37]: tI=time.time();zz=[S.randomSequence(100) for x in xrange(10000) ];print time.time()-tI
+3.37705183029
+
+In [38]: tI=time.time();zz=[S.StringSequence(sequence=S.randomSequence(100)) for x in xrange(10000) ];print time.time()-tI
+3.54489994049
+
+In [39]: tI=time.time();zz=[S.StringSequence(sequence=S.randomSequence(100)).oldlenHomo() for x in xrange(10000) ];print time.time()-tI
+4.4537460804
+
+In [40]: tI=time.time();zz=[S.StringSequence(sequence=S.randomSequence(100)).lenHomo() for x in xrange(10000) ];print time.time()-tI
+4.74569296837
